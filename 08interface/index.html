@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #000;
+      color: #fff;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .calc {
+      width: min(380px, 94vw);
+      padding: 22px 18px 18px;
+      background: #000;
+      border: 1px solid #1a1a1a;
+      border-radius: 28px;
+    }
+
+    .marca {
+      margin: 0 6px 14px;
+      color: #6b6b6b;
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    .visor {
+      min-height: 118px;
+      margin-bottom: 16px;
+      padding: 16px 18px 12px;
+      background: #000;
+      border: 1px solid #1a1a1a;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    #expressao {
+      min-height: 22px;
+      color: #7a7a7a;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+    }
+
+    #valor {
+      max-width: 100%;
+      font-size: clamp(36px, 8vw, 52px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      word-break: break-all;
+    }
+
+    .teclas {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 68px;
+      border: 1px solid #242424;
+      border-radius: 16px;
+      background: #000;
+      color: #fff;
+      font: inherit;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    button:hover { background: #0c0c0c; }
+
+    button:active {
+      background: #000;
+      border-color: #fff;
+    }
+
+    button.op,
+    button.fn {
+      color: #d8d8d8;
+    }
+
+    button.igual {
+      background: #0a0a0a;
+      border-color: #3a3a3a;
+    }
+
+    button:disabled {
+      color: #3a3a3a;
+      cursor: default;
+    }
+
+    @media (max-width: 420px) {
+      button { height: 60px; font-size: 20px; }
+      .calc { padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="calc">
+    <p class="marca">Calculadora</p>
+    <div class="visor">
+      <div id="expressao"></div>
+      <div id="valor">0</div>
+    </div>
+    <div class="teclas">
+      <button class="fn" type="button" data-fn="seno">sin</button>
+      <button class="fn" type="button" data-fn="cos">cos</button>
+      <button class="fn" type="button" data-fn="tan">tan</button>
+      <button class="op" type="button" data-acao="limpar">C</button>
+
+      <button type="button" data-digito="7">7</button>
+      <button type="button" data-digito="8">8</button>
+      <button type="button" data-digito="9">9</button>
+      <button class="op" type="button" data-op="divisao">÷</button>
+
+      <button type="button" data-digito="4">4</button>
+      <button type="button" data-digito="5">5</button>
+      <button type="button" data-digito="6">6</button>
+      <button class="op" type="button" data-op="multiplicacao">×</button>
+
+      <button type="button" data-digito="1">1</button>
+      <button type="button" data-digito="2">2</button>
+      <button type="button" data-digito="3">3</button>
+      <button class="op" type="button" data-op="subtracao">−</button>
+
+      <button type="button" data-digito="0">0</button>
+      <button type="button" data-digito=".">.</button>
+      <button class="igual" type="button" data-acao="igual">=</button>
+      <button class="op" type="button" data-op="soma">+</button>
+    </div>
+  </main>
+
+  <script>
+    const operacoes = {
+      soma(a, b) { return a + b; },
+      subtracao(a, b) { return a - b; },
+      multiplicacao(a, b) { return a * b; },
+      divisao(a, b) {
+        if (b === 0) throw new Error("Divisão por zero");
+        return a / b;
+        if (a + b == 67)
+        return ('vai se fuder');
+      },
+      seno(a) { return Math.sin(a * Math.PI / 180); },
+      cos(a) { return Math.cos(a * Math.PI / 180); },
+      tan(a) {
+        const rad = a * Math.PI / 180;
+        if (Math.abs(Math.cos(rad)) < 1e-10) throw new Error("Tangente indefinida");
+        return Math.tan(rad);
+      }
+    };
+
+    const simbolos = {
+      soma: "+",
+      subtracao: "−",
+      multiplicacao: "×",
+      divisao: "÷"
+    };
+
+    const nomesFn = { seno: "sin", cos: "cos", tan: "tan" };
+
+    const valorEl = document.querySelector("#valor");
+    const expressaoEl = document.querySelector("#expressao");
+
+    const estado = {
+      valor: "0",
+      guardado: null,
+      op: null,
+      substituir: false
+    };
+
+    function formatar(n) {
+      if (!Number.isFinite(n)) return "Erro";
+      const arredondado = Math.round(n * 1e10) / 1e10;
+      const texto = String(arredondado);
+      return texto.length > 14 ? arredondado.toExponential(6) : texto;
+    }
+
+    function desenhar() {
+      valorEl.textContent = estado.valor;
+    }
+
+    function digito(d) {
+      if (estado.valor === "Erro") limpar();
+      if (estado.substituir) {
+        estado.valor = d === "." ? "0." : d;
+        estado.substituir = false;
+        desenhar();
+        return;
+      }
+      if (d === "." && estado.valor.includes(".")) return;
+      if (estado.valor.replace("-", "").replace(".", "").length >= 12) return;
+      estado.valor = estado.valor === "0" && d !== "." ? d : estado.valor + d;
+      desenhar();
+    }
+
+    function limpar() {
+      estado.valor = "0";
+      estado.guardado = null;
+      estado.op = null;
+      estado.substituir = false;
+      expressaoEl.textContent = "";
+      desenhar();
+    }
+
+    function calcular(op, a, b) {
+      const fn = operacoes[op];
+      if (!fn) throw new Error("Operação inválida");
+      return b === undefined ? fn(a) : fn(a, b);
+    }
+
+    function escolherOp(op) {
+      if (estado.valor === "Erro") return;
+      const atual = Number(estado.valor);
+      if (estado.op && estado.guardado !== null && !estado.substituir) {
+        try {
+          estado.guardado = calcular(estado.op, estado.guardado, atual);
+          estado.valor = formatar(estado.guardado);
+        } catch (erro) {
+          estado.valor = "Erro";
+          estado.guardado = null;
+          estado.op = null;
+          expressaoEl.textContent = erro.message;
+          desenhar();
+          return;
+        }
+      } else {
+        estado.guardado = atual;
+      }
+      estado.op = op;
+      estado.substituir = true;
+      expressaoEl.textContent = formatar(estado.guardado) + " " + simbolos[op];
+      desenhar();
+    }
+
+    function aplicarFn(fn) {
+      if (estado.valor === "Erro") return;
+      const atual = Number(estado.valor);
+      try {
+        const resultado = calcular(fn, atual);
+        expressaoEl.textContent = nomesFn[fn] + "(" + formatar(atual) + ")";
+        estado.valor = formatar(resultado);
+        estado.substituir = true;
+      } catch (erro) {
+        estado.valor = "Erro";
+        expressaoEl.textContent = erro.message;
+      }
+      desenhar();
+    }
+
+    function igual() {
+      if (!estado.op || estado.guardado === null || estado.valor === "Erro") return;
+      const atual = Number(estado.valor);
+      try {
+        const resultado = calcular(estado.op, estado.guardado, atual);
+        expressaoEl.textContent = formatar(estado.guardado) + " " + simbolos[estado.op] + " " + formatar(atual) + " =";
+        estado.valor = formatar(resultado);
+        estado.guardado = null;
+        estado.op = null;
+        estado.substituir = true;
+      } catch (erro) {
+        estado.valor = "Erro";
+        expressaoEl.textContent = erro.message;
+        estado.guardado = null;
+        estado.op = null;
+      }
+      desenhar();
+    }
+
+    document.querySelector(".teclas").addEventListener("click", (evento) => {
+      const botao = evento.target.closest("button");
+      if (!botao) return;
+      if (botao.dataset.digito) digito(botao.dataset.digito);
+      else if (botao.dataset.op) escolherOp(botao.dataset.op);
+      else if (botao.dataset.fn) aplicarFn(botao.dataset.fn);
+      else if (botao.dataset.acao === "limpar") limpar();
+      else if (botao.dataset.acao === "igual") igual();
+    });
+
+    document.addEventListener("keydown", (evento) => {
+      if (evento.key >= "0" && evento.key <= "9") digito(evento.key);
+      else if (evento.key === "." || evento.key === ",") digito(".");
+      else if (evento.key === "+") escolherOp("soma");
+      else if (evento.key === "-") escolherOp("subtracao");
+      else if (evento.key === "*") escolherOp("multiplicacao");
+      else if (evento.key === "/") { evento.preventDefault(); escolherOp("divisao"); }
+      else if (evento.key === "Enter" || evento.key === "=") igual();
+      else if (evento.key === "Escape") limpar();
+      else if (evento.key === "Backspace") {
+        if (estado.substituir || estado.valor === "Erro") return;
+        estado.valor = estado.valor.length > 1 ? estado.valor.slice(0, -1) : "0";
+        desenhar();
+      }
+    });
+  </script>
+</body>
+</html>
