@@ -1,0 +1,14 @@
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\bin\Debug\net10.0\08interface.exe
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\bin\Debug\net10.0\08interface.deps.json
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\bin\Debug\net10.0\08interface.runtimeconfig.json
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\bin\Debug\net10.0\08interface.dll
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\bin\Debug\net10.0\08interface.pdb
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.AssemblyInfoInputs.cache
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.AssemblyInfo.cs
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.csproj.CoreCompileInputs.cache
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.dll
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\refint\08interface.dll
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.pdb
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\08interface.genruntimeconfig.cache
+C:\Users\gustavo.lopes\Desktop\2\orientação a objeto\08interface\obj\Debug\net10.0\ref\08interface.dll
